@@ -1,0 +1,21 @@
+numpy
+scipy
+pandas
+librosa
+praat-parselmouth
+webrtcvad
+noisereduce
+matplotlib
+seaborn
+tqdm
+scikit-learn
+imbalanced-learn
+xgboost
+joblib
+
+# Optional (linguistic/ASR; comment out if not needed)
+# torch
+# transformers
+# sentencepiece
+# datasets
+# nltk
