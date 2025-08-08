@@ -31,11 +31,6 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-Optional/extra components:
-
-  - PyTorch (CPU/GPU per your system)
-  - transformers, datasets, sentencepiece
-  - nltk (download punkt and averaged_perceptron_tagger)
 
 ## Usage
 
@@ -102,7 +97,8 @@ Due to dataset usage policies, we cannot redistribute the raw audio/data in this
 
 ## License
 
-The license for this repository will be set via GitHub’s License feature. See the repository’s License tab for details.
+This repository is licensed under the MIT License.  
+See the [Licese](LICENSE) file for the full text.
 
 ## Citation
 
