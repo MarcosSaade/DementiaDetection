@@ -1,4 +1,4 @@
-# Dementia-ML
+# Dementia Detection through Machine Learning
 
 Open-source code accompanying our research on automatic dementia detection from speech. This repository includes:
 
