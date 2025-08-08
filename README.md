@@ -20,8 +20,6 @@ Open-source code accompanying our research on automatic dementia detection from 
   - paper.py: train/evaluate SVM, ANN and XGBoost and generate plots
   - missclassified.py: SVM pipeline with misclassification reporting
 
-If you used an earlier version, keep in mind we retain the misspelled file name `accoustic.py` for backward compatibility.
-
 ## Installation
 
 Python 3.10+ recommended. Create a virtual environment and install dependencies:
