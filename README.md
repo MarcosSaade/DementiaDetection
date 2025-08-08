@@ -2,11 +2,10 @@
 
 Open-source code accompanying our research on automatic dementia detection from speech. This repository includes:
 
-- Feature extraction (acoustic, prosodic, optional linguistic)
+- Feature extraction (acoustic, prosodic, temporal)
 - Dataset preparation and visualization utilities
 - Classifiers (SVM, ANN, XGBoost) and evaluation scripts
 
-Note: Some modules (e.g., linguistic ASR) are optional and heavy; see installation notes below.
 
 ## Repository structure
 
@@ -36,12 +35,9 @@ pip install -r requirements.txt
 
 Optional/extra components:
 
-- Linguistic/ASR features (disabled by default): install extras
   - PyTorch (CPU/GPU per your system)
   - transformers, datasets, sentencepiece
   - nltk (download punkt and averaged_perceptron_tagger)
-
-See comments inside `FeatureExtraction/main.py` to enable linguistic features.
 
 ## Usage
 
