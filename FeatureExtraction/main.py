@@ -13,8 +13,7 @@ from preprocessing import load_audio, normalize_audio, reduce_noise, remove_extr
 
 def extract_all_features(audio_data, sr, original_audio_data=None, reference_text=None):
     """
-    Extract acoustic + prosodic features. Linguistic features are optional and disabled by default
-    to keep dependencies light.
+    Extract acoustic + prosodic features. Linguistic features are optional and meant for natural speech.
 
     Args:
         audio_data: Preprocessed audio signal (1D array)
@@ -34,14 +33,6 @@ def extract_all_features(audio_data, sr, original_audio_data=None, reference_tex
 
     # Update features with prosodic features
     features.update(prosodic_features)
-
-    # Linguistic features (disabled by default)
-    # from linguistic import SpeechLinguisticAnalyzer
-    # analyzer = SpeechLinguisticAnalyzer()
-    # transcription = analyzer.transcribe_audio(audio_data, sr)
-    # linguistic_features = analyzer.extract_linguistic_features(transcription, reference_text)
-    # features.update(linguistic_features)
-    # features['transcription'] = transcription
 
     return features
 
