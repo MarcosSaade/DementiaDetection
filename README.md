@@ -82,7 +82,7 @@ Parsed fields are saved as columns in the output CSV.
 
 ## Reproducibility
 
-- Random seeds are set where applicable (e.g., 42)
+- Random seeds are set where applicable
 - All plots are saved under the provided graphs directory
 - Best feature subset is hardcoded in classifier scripts to match the paper
 
