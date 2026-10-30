@@ -43,14 +43,14 @@ The most important features by permutation importance were the mean of MFCC 8, t
 ```
 FeatureExtraction/
   preprocessing.py     audio loading, normalization, noise reduction, VAD
-  accoustic.py         spectral and voice-quality features (Praat/parselmouth, librosa)
+  acoustic.py          spectral and voice-quality features (Praat/parselmouth, librosa)
   prosodic.py          timing, rhythm and pause features
   main.py              batch feature extraction from a folder of .wav files
 DataVisualization/
   main.py              class and per-feature distribution plots
 Classifier/
   paper.py             SVM, MLP and XGBoost comparison; reproduces the paper's figures
-  missclassified.py    SVM pipeline with per-recording error analysis
+  misclassified.py     SVM pipeline with per-recording error analysis
 ```
 
 ## Usage
@@ -71,7 +71,7 @@ python DataVisualization/main.py --input savedFeatures/features.csv --output Gra
 
 # 3. Train and evaluate (reproduces the paper's figures)
 python Classifier/paper.py --features savedFeatures/features.csv --graphs paper/graphs
-python Classifier/missclassified.py --features savedFeatures/features.csv --graphs paper/graphs
+python Classifier/misclassified.py --features savedFeatures/features.csv --graphs paper/graphs
 ```
 
 Audio files should be named `<Label>-<Gender>-<Age>-<ID>.wav` (for example `AD-M-78-001.wav` or `HC-W-70-012.wav`); these fields are parsed into the output CSV.

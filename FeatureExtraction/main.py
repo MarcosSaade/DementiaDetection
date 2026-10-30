@@ -6,7 +6,7 @@ from typing import Dict, Optional, Tuple
 import pandas as pd
 from tqdm import tqdm
 
-from accoustic import extract_acoustic_features
+from acoustic import extract_acoustic_features
 from prosodic import extract_prosodic_features, extract_silences
 from preprocessing import load_audio, normalize_audio, reduce_noise, remove_extreme_peaks, plot_audio_segments
 
