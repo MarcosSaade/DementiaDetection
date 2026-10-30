@@ -1,105 +1,92 @@
-# Dementia Detection through Machine Learning
+# Detecting Alzheimer's Disease from Spanish Speech
 
-Open-source code accompanying our research on automatic dementia detection from speech. This repository includes:
+Code for my paper on screening for Alzheimer's disease from short recordings of Spanish read speech. The pipeline extracts 80+ interpretable acoustic, timing and complexity features, balances the classes with SMOTE-ENN, and classifies with an RBF SVM.
 
-- Feature extraction (acoustic, prosodic, temporal)
-- Dataset preparation and visualization utilities
-- Classifiers (SVM, ANN, XGBoost) and evaluation scripts
+**Result:** 80.1% +/- 2.2% accuracy, 81.2% weighted F1 and ROC AUC 0.90 in 5-fold cross-validation on 361 recordings.
 
+Paper (PDF): [marcossaade.github.io/dementiaDetectionML.pdf](https://marcossaade.github.io/dementiaDetectionML.pdf) · Project page: [marcossaade.github.io/dementia](https://marcossaade.github.io/dementia)
+
+## Data
+
+361 recordings of the same paragraph read aloud in Spanish, from the Ivanova corpus in [DementiaBank](https://talkbank.org/dementia/): 74 with Alzheimer's disease and 287 without (197 healthy controls, 90 with mild cognitive impairment), ages 50 to 96. The task is Alzheimer's vs. non-Alzheimer's.
+
+The dataset can't be redistributed. Researchers can request access through DementiaBank.
+
+## Method
+
+**Preprocessing.** Mono, 16 kHz, amplitude normalization, noise reduction, and WebRTC voice activity detection to separate speech from pauses.
+
+**Features (80+).**
+- *Spectral:* 13 MFCCs (mean and standard deviation), formants F1 to F4, spectral centroid and slope.
+- *Voice quality:* pitch, jitter, shimmer, harmonics-to-noise ratio, cepstral peak prominence.
+- *Timing and rhythm:* total and speech duration, pause counts and lengths, speech-to-pause ratio, articulation rate, rhythm indices (nPVI, rPVI).
+- *Complexity:* Higuchi fractal dimension.
+
+**Model.** Recursive feature elimination reduced the features to 15. The final pipeline is SMOTE-ENN, then scaling, then an RBF SVM (C = 10, gamma = scale) tuned by grid search. SMOTE-ENN runs inside the pipeline, so synthetic samples are only created from the training part of each cross-validation fold and never leak into the test fold.
+
+## Results
+
+5-fold stratified cross-validation:
+
+| Model | Accuracy |
+|---|---|
+| **RBF SVM** | **80.1% +/- 2.2%** (weighted F1 81.2%, ROC AUC 0.90, PR AUC 0.69) |
+| Neural network (MLP) | 78% |
+| XGBoost | 76% |
+
+The most important features by permutation importance were the mean of MFCC 8, the range of F2, the mean of MFCC 2 and the spectral centroid.
+
+**Limitations.** The Alzheimer's class is small (74 recordings), and precision on that class is 0.62, so the model produces a fair number of false positives. It is a screening aid to study, not a diagnostic tool. An end-to-end deep learning model on raw audio was tried first and performed near chance, which is why the final model uses engineered features.
 
 ## Repository structure
 
-- FeatureExtraction/
-  - preprocessing.py: audio I/O, normalization, noise reduction, VAD helpers and plotting
-  - accoustic.py: acoustic feature extraction (Praat/parselmouth, librosa, scipy)
-  - prosodic.py: prosodic and timing features (VAD, rhythm, tempo, energy)
-  - main.py: batch processing CLI to extract features from a folder of .wav files
-- DataVisualization/
-  - main.py: plots for class distributions and per-feature distributions
-- Classifier/
-  - paper.py: train/evaluate SVM, ANN and XGBoost and generate plots
-  - missclassified.py: SVM pipeline with misclassification reporting
-
-## Installation
-
-Python 3.10+ recommended. Create a virtual environment and install dependencies:
-
 ```
-python -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
+FeatureExtraction/
+  preprocessing.py     audio loading, normalization, noise reduction, VAD
+  accoustic.py         spectral and voice-quality features (Praat/parselmouth, librosa)
+  prosodic.py          timing, rhythm and pause features
+  main.py              batch feature extraction from a folder of .wav files
+DataVisualization/
+  main.py              class and per-feature distribution plots
+Classifier/
+  paper.py             SVM, MLP and XGBoost comparison; reproduces the paper's figures
+  missclassified.py    SVM pipeline with per-recording error analysis
 ```
-
 
 ## Usage
 
-1) Extract features from a folder with .wav files
+Python 3.10+:
 
-```
-python FeatureExtraction/main.py \
-  --input "path/to/wavs" \
-  --output "savedFeatures/features.csv" \
-  --plots "Graphs/silence" \
-  --plot 0
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
-2) Visualize dataset
+```bash
+# 1. Extract features
+python FeatureExtraction/main.py --input path/to/wavs --output savedFeatures/features.csv
 
-```
-python DataVisualization/main.py \
-  --input "savedFeatures/features.csv" \
-  --output "Graphs"
-```
+# 2. Plot the dataset (optional)
+python DataVisualization/main.py --input savedFeatures/features.csv --output Graphs
 
-3) Train and evaluate classifiers (reproduces paper figures)
-
-- SVM + detailed error analysis
-```
-python Classifier/missclassified.py \
-  --features "savedFeatures/features.csv" \
-  --graphs "paper/graphs"
+# 3. Train and evaluate (reproduces the paper's figures)
+python Classifier/paper.py --features savedFeatures/features.csv --graphs paper/graphs
+python Classifier/missclassified.py --features savedFeatures/features.csv --graphs paper/graphs
 ```
 
-- SVM, ANN, XGBoost comparison
-```
-python Classifier/paper.py \
-  --features "savedFeatures/features.csv" \
-  --graphs "paper/graphs"
-```
+Audio files should be named `<Label>-<Gender>-<Age>-<ID>.wav` (for example `AD-M-78-001.wav` or `HC-W-70-012.wav`); these fields are parsed into the output CSV.
 
-## Expected filename format
-
-For automatic metadata parsing, audio files are expected to follow:
-
-```
-<ClassLabel>-<Gender>-<Age>-<ID>.wav
-```
-
-Examples: `AD-M-78-001.wav`, `HC-W-70-012.wav`
-
-Parsed fields are saved as columns in the output CSV.
-
-## Reproducibility
-
-- Random seeds are set where applicable
-- All plots are saved under the provided graphs directory
-- Best feature subset is hardcoded in classifier scripts to match the paper
-
-## Notes
-
-- VAD relies on WebRTC (`webrtcvad`) which expects 16kHz (or 8/32/48kHz) and 16-bit PCM frames. The preprocessing pipeline resamples and converts as needed.
-- Parselmouth/Praat is used for acoustic measures (jitter, shimmer, formants, HNR). Make sure `praat-parselmouth` is installed from PyPI.
-
-## Data availability
-
-Due to dataset usage policies, we cannot redistribute the raw audio/data in this repository. Researchers can request access to DementiaBank datasets via: https://talkbank.org/dementia/
+Notes:
+- The 15 selected features are hardcoded in the classifier scripts to match the paper, and random seeds are fixed.
+- WebRTC VAD requires 16-bit PCM at 8, 16, 32 or 48 kHz; the preprocessing step resamples as needed.
+- Install Praat bindings from PyPI as `praat-parselmouth`.
 
 ## License
 
-This repository is licensed under the MIT License.  
-See the [Licese](LICENSE) file for the full text.
+MIT, see [LICENSE](LICENSE).
 
 ## Citation
 
-If you use this code, please cite the accompanying paper.
+If you use this code, please cite the paper:
+
+> Marcos Saade Romano. *Alzheimer's Disease Detection Through Automated Speech Analysis in Spanish-Speaking Populations through Feature Engineering and Machine Learning.* Tecnológico de Monterrey.
